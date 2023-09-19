@@ -76,4 +76,11 @@ create table if not exists Tasks
 );
 
 
+COPY tasks
+FROM '/Users/annarozdestvina/Documents/School21/SQL2_Info21_v1.0-1/src/data/tasks.csv'
+DELIMITER ';'
+CSV Header;
+
+SELECT * FROM public.tasks
+
 
