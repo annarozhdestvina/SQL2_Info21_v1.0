@@ -34,7 +34,7 @@ create table if not exists TimeTracking
 	id bigint primary key,
 	Peer varchar,
 	Date date not null,
-	created timestamp with time zone not null default current_timestamp,
+	created time,
 	State integer
 );
 
@@ -57,7 +57,7 @@ create table if not exists Verter
 	id bigint primary key,
 	Checks bigint,
 	State varchar,
-	created timestamp with time zone not null default current_timestamp
+	created time
 );
 
 create table if not exists XP
@@ -98,5 +98,32 @@ FROM '/Users/annarozdestvina/Documents/School21/SQL2_Info21_v1.0-1/src/data/p2p.
 DELIMITER ';'
 CSV Header;
 
+COPY peers
+FROM '/Users/annarozdestvina/Documents/School21/SQL2_Info21_v1.0-1/src/data/peers.csv'
+DELIMITER ';'
+CSV Header;
 
+COPY recommendations
+FROM '/Users/annarozdestvina/Documents/School21/SQL2_Info21_v1.0-1/src/data/recommends.csv'
+DELIMITER ';'
+CSV Header;
 
+COPY TimeTracking
+FROM '/Users/annarozdestvina/Documents/School21/SQL2_Info21_v1.0-1/src/data/timetrack.csv'
+DELIMITER ';'
+CSV Header;
+
+COPY transferredpoints
+FROM '/Users/annarozdestvina/Documents/School21/SQL2_Info21_v1.0-1/src/data/transfer.csv'
+DELIMITER ';'
+CSV Header;
+
+COPY verter
+FROM '/Users/annarozdestvina/Documents/School21/SQL2_Info21_v1.0-1/src/data/verter.csv'
+DELIMITER ';'
+CSV Header;
+
+COPY xp
+FROM '/Users/annarozdestvina/Documents/School21/SQL2_Info21_v1.0-1/src/data/xp.csv'
+DELIMITER ';'
+CSV Header;
