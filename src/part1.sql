@@ -4,8 +4,7 @@ create table if not exists P2P
 	Checks integer,
 	CheckingPeer varchar,
 	state varchar,
-	created  timestamp with time zone not null
-    default (current_timestamp at time zone 'UTC')
+	created time  
 );
 
 create table if not exists TransferredPoints
@@ -82,5 +81,22 @@ DELIMITER ';'
 CSV Header;
 
 SELECT * FROM public.tasks
+
+
+COPY checks
+FROM '/Users/annarozdestvina/Documents/School21/SQL2_Info21_v1.0-1/src/data/checks.csv'
+DELIMITER ';'
+CSV Header;
+
+COPY friends
+FROM '/Users/annarozdestvina/Documents/School21/SQL2_Info21_v1.0-1/src/data/friends.csv'
+DELIMITER ';'
+CSV Header;
+
+COPY p2p
+FROM '/Users/annarozdestvina/Documents/School21/SQL2_Info21_v1.0-1/src/data/p2p.csv'
+DELIMITER ';'
+CSV Header;
+
 
 
