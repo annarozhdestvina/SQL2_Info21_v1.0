@@ -1,11 +1,11 @@
-CREATE TYPE check_status AS ENUM ('Start', 'Success', 'Failure');
+CREATE TYPE check_status_t AS ENUM ('Start', 'Success', 'Failure');
 
 create table if not exists P2P
 (
 	id bigint primary key,
 	Checks integer,
 	CheckingPeer varchar,
-	state check_status,
+	state check_status_t,
 	created time  
 );
 
