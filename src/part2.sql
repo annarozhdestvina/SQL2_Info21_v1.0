@@ -34,3 +34,31 @@ begin
 
 end;
 $$;
+
+
+
+
+//// 
+CREATE or replace PROCEDURE test4(n integer)
+language plpgsql
+
+AS $$
+declare
+begin 
+	insert into teeeest(id, checks, checkingpeer, state, created)
+		select * from p2p where id = n;
+		
+end;
+$$;
+
+select * from teeeest
+
+call test4(15);
+drop table teeeest
+create table teeeest (
+	id bigint primary key,
+	Checks integer,
+	CheckingPeer varchar,
+	state check_status,
+	created time  
+);
