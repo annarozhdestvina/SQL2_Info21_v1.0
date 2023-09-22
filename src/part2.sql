@@ -94,3 +94,82 @@ BEGIN
     END IF;
 END;
 $$ LANGUAGE plpgsql;
+
+-- Task_3 a trigger: after adding a record into p2p table
+CREATE OR REPLACE FUNCTION fnc_trg_transferred_point() RETURNS TRIGGER AS
+$$
+DECLARE
+    peer_start VARCHAR = (SELECT "Peer" FROM Checks WHERE Checks."ID" = NEW."Check");
+BEGIN
+    UPDATE TransferredPoints SET "PointsAmount" = "PointsAmount" + 1 WHERE "CheckingPeer" = NEW."CheckingPeer" AND "CheckedPeer" = peer_start;
+    IF NOT FOUND THEN
+        INSERT INTO TransferredPoints ("CheckingPeer", "CheckedPeer", "PointsAmount")
+        VALUES (NEW."CheckingPeer", peer_start, 1);
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_transferred_point
+    AFTER INSERT ON P2P
+    FOR EACH ROW
+    WHEN(NEW."State" = 'Start')
+    EXECUTE FUNCTION fnc_trg_transferred_point();
+
+-- Task_4  trigger: before adding a record to the XP
+CREATE OR REPLACE FUNCTION fnc_trg_xp() RETURNS TRIGGER AS
+$$
+DECLARE
+    p2p_success_exists_id    BIGINT  = (SELECT P2P."Check"
+                                        FROM P2P
+                                        WHERE NEW."Check" = P2P."Check"
+                                          AND P2P."State" = 'Success');
+    xp_amount_max_task       INT     = (SELECT Tasks."MaxXP"
+                                        FROM (SELECT * FROM Checks WHERE Checks."ID" = NEW."Check") AS checks_new
+                                                 INNER JOIN Tasks
+                                                            ON Tasks."Title" = checks_new."Task");
+    verter_success_exists_id VARCHAR = (SELECT "State"
+                                        FROM Verter
+                                        WHERE NEW."Check" = Verter."Check"
+                                        ORDER BY "State" DESC
+                                        LIMIT 1);
+BEGIN
+    IF xp_amount_max_task < NEW."XPAmount" THEN
+        RAISE NOTICE 'XPAmount more than MaxXP!';
+        RETURN NULL;
+    ELSIF p2p_success_exists_id is NULL THEN
+        RAISE NOTICE 'P2P status is not Success!';
+        RETURN NULL;
+    ELSIF verter_success_exists_id = 'Failure' OR verter_success_exists_id = 'Start' THEN
+        RAISE NOTICE 'Verter status is not Success';
+        RETURN NULL;
+    ELSE
+        RETURN NEW;
+    END IF;
+END;
+
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_xp
+    BEFORE INSERT ON XP
+    FOR EACH ROW
+    EXECUTE FUNCTION fnc_trg_xp();
+
+
+CALL add_p2p('Dynarini', 'Oryadela', 'C2_SimpleBashUtils', 'Success');
+CALL add_p2p('Oryadela', 'Dynarini', 'C4_Math', 'Start');
+
+-- TASk_2_3_KЕЙС_1 (Если Р2P не SUCCESS. Вернет RAISE NOTICE)
+CALL fill_verter('Dima', 'C3_s21_math', 'Start', '12:00');
+-- TASk_2_KЕЙС_1 (Если Verter не начат. Но хотим ввести Success или Failure. Вернет RAISE NOTICE)
+CALL fill_verter('Dima', 'C3_s21_math', 'Success', '12:00');
+CALL fill_verter('Dima', 'C3_s21_math', 'Failure', '12:00');
+-- TASk_2_KЕЙС_2 (Если Verter уже Start. Вернет RAISE NOTICE)
+CALL fill_verter('Dima', 'C3_s21_math', 'Start', '12:00');
+CALL fill_verter('Dima', 'C3_s21_math', 'Start', '12:00');
+-- TASk_2_KЕЙС_2 (Если Verter уже SUCCESS или Failure. Но хотим ввести Success или Failure. Вернет RAISE NOTICE)
+CALL fill_verter('Dima', 'C3_s21_math', 'Success', '12:00');
+CALL fill_verter('Dima', 'C3_s21_math', 'Success', '12:00');
+-- TASk_4_KЕЙС_1 (Если Verter уже SUCCESS или Failure. Но хотим ввести Success или Failure. Вернет RAISE NOTICE)
+INSERT INTO XP ("Check", "XPAmount")
+VALUES ((SELECT MAX("ID") FROM Checks), 200);
