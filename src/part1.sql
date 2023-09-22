@@ -1,4 +1,6 @@
-CREATE TYPE check_status AS ENUM ('Start', 'Success', 'Failure');
+-- part1 creation of tables and enum for status
+
+CREATE TYPE check_status AS ENUM ('Start', 'Success', 'Failure');  
 
 CREATE TABLE IF NOT EXISTS Peers
 (
@@ -102,6 +104,7 @@ CREATE TABLE IF NOT EXISTS TimeTracking
  	CONSTRAINT fk_time_tracking_peer FOREIGN KEY ("Peer") REFERENCES Peers("Nickname")
 );
 
+-- create procedure for not duplication of code
 CREATE OR REPLACE PROCEDURE import_csv(
         IN table_name text,
         IN csv_file text,
